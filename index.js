@@ -27,6 +27,7 @@ app.get("/gn", (req, res) => {
   const scrapeGeneralNotification = async () => {
     try {
       const { data } = await axios.get(url);
+      console.log(data);
       const $ = cheerio.load(data);
       const GeneralNotifications = [];
       for (let index = 1; index < 25; index++) {
@@ -44,6 +45,40 @@ app.get("/gn", (req, res) => {
     }
   };
   scrapeGeneralNotification();
+});
+
+app.get("/test", (req, res) => {
+  const options = {
+    method: "GET",
+  };
+
+  const fetchWeb = async () => {
+    await fetch(`https://cgu-odisha.ac.in/notices/`, options)
+      .then((result) => {
+        return result.text();
+      })
+      .then((content) => {
+        // console.log(content);
+        const $ = cheerio.load(content);
+        const GeneralNotifications = [];
+        for (let index = 1; index < 25; index++) {
+          const notification = { _id: "", event: "", p_date: "" };
+          notification._id = index;
+          notification.event = $(
+            `tr:nth-child(${index}) td:nth-child(2)`
+          ).text();
+          notification.p_date = $(
+            `tr:nth-child(${index}) td:nth-child(3)`
+          ).text();
+          GeneralNotifications.push(notification);
+        }
+        res.send(GeneralNotifications);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+  fetchWeb();
 });
 
 //Exam Notification of  CGU
