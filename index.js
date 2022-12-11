@@ -2,6 +2,7 @@ require("dotenv").config();
 const axios = require("axios");
 const cheerio = require("cheerio");
 const express = require("express");
+const GeneralNotifications = [];
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -22,14 +23,24 @@ app.get("/", (req, res) => {
 //General Notification Of  CGU
 
 app.get("/gn", (req, res) => {
-  //Url of CGU
-  const url = "https://cgu-odisha.ac.in/notices/";
-  const scrapeGeneralNotification = async () => {
-    try {
-      const { data } = await axios.get(url);
-      console.log(data);
-      const $ = cheerio.load(data);
-      const GeneralNotifications = [];
+  res.send(GeneralNotifications);
+});
+
+// invoke
+
+const options = {
+  method: "GET",
+};
+
+const fetchWeb = async () => {
+  await fetch(`https://cgu-odisha.ac.in/notices/`, options)
+    .then((result) => {
+      return result.text();
+    })
+    .then((content) => {
+      // console.log(content);
+
+      const $ = cheerio.load(content);
       for (let index = 1; index < 25; index++) {
         const notification = { _id: "", event: "", p_date: "" };
         notification._id = index;
@@ -39,57 +50,13 @@ app.get("/gn", (req, res) => {
         ).text();
         GeneralNotifications.push(notification);
       }
-      res.send(GeneralNotifications);
-    } catch (error) {
-      //   console.error(error);
-      res.send(error);
-    }
-  };
-  scrapeGeneralNotification();
-});
-
-app.get("/test", (req, res) => {
-  const options = {
-    method: "GET",
-    headers: {
-      accept: "*/*",
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53",
-      "Accept-Language": "en-US,en;q=0.9,it;q=0.8,es;q=0.7",
-      referer: "https://www.google.com/",
-      cookie:
-        "DSID=AAO-7r4OSkS76zbHUkiOpnI0kk-X19BLDFF53G8gbnd21VZV2iehu-w_2v14cxvRvrkd_NjIdBWX7wUiQ66f-D8kOkTKD1BhLVlqrFAaqDP3LodRK2I0NfrObmhV9HsedGE7-mQeJpwJifSxdchqf524IMh9piBflGqP0Lg0_xjGmLKEQ0F4Na6THgC06VhtUG5infEdqMQ9otlJENe3PmOQTC_UeTH5DnENYwWC8KXs-M4fWmDADmG414V0_X0TfjrYu01nDH2Dcf3TIOFbRDb993g8nOCswLMi92LwjoqhYnFdf1jzgK0",
-    },
-  };
-
-  const fetchWeb = async () => {
-    await fetch(`https://cgu-odisha.ac.in/notices/`, options)
-      .then((result) => {
-        return result.text();
-      })
-      .then((content) => {
-        // console.log(content);
-        const $ = cheerio.load(content);
-        const GeneralNotifications = [];
-        for (let index = 1; index < 25; index++) {
-          const notification = { _id: "", event: "", p_date: "" };
-          notification._id = index;
-          notification.event = $(
-            `tr:nth-child(${index}) td:nth-child(2)`
-          ).text();
-          notification.p_date = $(
-            `tr:nth-child(${index}) td:nth-child(3)`
-          ).text();
-          GeneralNotifications.push(notification);
-        }
-        res.send(GeneralNotifications);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  };
-  fetchWeb();
-});
+      console.log("Data Loaded... 100%");
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+fetchWeb();
 
 //Exam Notification of  CGU
 
