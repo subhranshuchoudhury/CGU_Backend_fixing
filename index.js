@@ -41,7 +41,8 @@ app.get("/gn", (req, res) => {
       }
       res.send(GeneralNotifications);
     } catch (error) {
-      console.error(error);
+      //   console.error(error);
+      res.send(error);
     }
   };
   scrapeGeneralNotification();
