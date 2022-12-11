@@ -3,6 +3,7 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const express = require("express");
 const GeneralNotifications = [];
+let webDATA = "...";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -38,9 +39,9 @@ const fetchWeb = async () => {
       return result.text();
     })
     .then((content) => {
-      // console.log(content);
-
-      const $ = cheerio.load(content);
+      webDATA = content;
+      //   console.log(typeof content);
+      const $ = cheerio.load(webDATA);
       for (let index = 1; index < 25; index++) {
         const notification = { _id: "", event: "", p_date: "" };
         notification._id = index;
